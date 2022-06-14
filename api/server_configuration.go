@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,20 +9,44 @@ import (
 )
 
 type ServerConfiguration struct {
-	APIKey     string `json:"api_key"`
-	Coordinate struct {
-		Latitude  float64 `json:"latitude"`
-		Longitude float64 `json:"longitude"`
-	} `json:"coordinate"`
-	Subcriptions []struct {
-		ID          int    `json:"id"`
-		Name        string `json:"name"`
-		Subscribed  bool   `json:"subscribed"`
-		DisplayName string `json:"display_name,omitempty"`
-	} `json:"subcriptions"`
-	UpdateFrequency  int  `json:"update_frequency"`
-	MaxDailyRequests int  `json:"max_daily_requests"`
-	MaximizeFetch    bool `json:"maximize_fetch"`
+	Id               int     `json:"id"`
+	APIKey           string  `json:"api_key"`
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
+	Subcriptions     string  `json:"subcriptions"`
+	UpdateFrequency  int     `json:"update_frequency"`
+	MaxDailyRequests int     `json:"max_daily_requests"`
+	MaximizeFetch    int     `json:"maximize_fetch"`
+	DeviceToken      string  `json:"device_token"`
+}
+
+func AddNewServerConfigutation(db *sql.DB, config ServerConfiguration) {
+	statement, _ := db.Prepare("insert into stations (api_key, latitude, longitude, subscriptions, update_frequency, max_daily_requests, maximize_fetch, device_token) values (?, ?, ?, ?, ?, ?, ?, ?)")
+	statement.Exec(config.APIKey, config.Latitude, config.Longitude, config.Subcriptions, config.UpdateFrequency, config.MaxDailyRequests, config.MaximizeFetch, config.DeviceToken)
+
+	defer statement.Close()
+}
+
+func GetAllServerConfigurations(db *sql.DB) *[]ServerConfiguration {
+	rows, err := db.Query("select * from stations")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	configs := make([]ServerConfiguration, 0)
+
+	for rows.Next() {
+		config := ServerConfiguration{}
+		err = rows.Scan(&config.Id, &config.APIKey, &config.Latitude, &config.Longitude, &config.Subcriptions, &config.UpdateFrequency, &config.MaxDailyRequests, &config.MaximizeFetch, &config.DeviceToken)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		configs = append(configs, config)
+	}
+
+	return &configs
 }
 
 func LoadServerConfiguration(config ...string) *ServerConfiguration {

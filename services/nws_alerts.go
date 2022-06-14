@@ -5,11 +5,9 @@ import (
 	"pws/api"
 )
 
-func NWSAlerts(weatherResponse *api.WeatherResponse) {
+func NWSAlerts(weatherResponse *api.WeatherResponse, previousData *[]api.Alert) *[]api.Alert {
 
-	var previousData []api.Alert
-
-	alertable := api.AlertArrayDifference(&previousData, &weatherResponse.Alerts)
+	alertable := api.AlertArrayDifference(previousData, &weatherResponse.Alerts)
 
 	if len(*alertable) != 0 {
 		for _, alert := range *alertable {
@@ -18,5 +16,7 @@ func NWSAlerts(weatherResponse *api.WeatherResponse) {
 
 		}
 	}
+
+	return &weatherResponse.Alerts
 
 }

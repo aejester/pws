@@ -6,16 +6,20 @@ import (
 	"time"
 )
 
-func ServiceScheduler(name string, data *api.WeatherResponse, refresh int, service func(data *api.WeatherResponse)) {
+func ServiceScheduler[T any](name string, data *api.WeatherResponse, refresh int, service func(data *api.WeatherResponse, prev T) T) {
 	ticker := time.NewTicker(time.Duration(refresh) * time.Minute)
 	quit := make(chan int)
 	fmt.Println("starting thread " + name)
-	service(data)
+
+	var prev T
+
+	prev = service(data, prev)
+
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				service(data)
+				prev = service(data, prev)
 			case <-quit:
 				fmt.Println("stopping thread " + name)
 				ticker.Stop()

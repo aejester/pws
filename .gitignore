@@ -16,3 +16,4 @@ pws
 # vendor/
 
 config.json
+*.db
