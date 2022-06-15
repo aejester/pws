@@ -82,6 +82,8 @@ func main() {
 				}
 			}()
 
+			output := make(chan string)
+
 			for _, sub := range subscriptions {
 				id, err := strconv.Atoi(sub)
 				if err != nil {
@@ -91,19 +93,21 @@ func main() {
 				service := serviceNames[id-1]
 
 				if service.Name == "precipitation_updates" {
-					go services.ServiceScheduler(service.Name, &currentWeatherData, 30, services.PrecipitationUpdates)
+					go services.ServiceScheduler(service.Name, &currentWeatherData, 30, services.PrecipitationUpdates, output)
 				} else if service.Name == "hurricane_updates" {
-					go services.ServiceScheduler(service.Name, &currentWeatherData, 300, services.HurricaneUpdates)
+					go services.ServiceScheduler(service.Name, &currentWeatherData, 300, services.HurricaneUpdates, output)
 				} else if service.Name == "wind_updates" {
-					go services.ServiceScheduler(service.Name, &currentWeatherData, 10, services.WindUpdates)
+					go services.ServiceScheduler(service.Name, &currentWeatherData, 10, services.WindUpdates, output)
 				} else if service.Name == "nws_alerts" {
-					go services.ServiceScheduler(service.Name, &currentWeatherData, 5, services.NWSAlerts)
+					go services.ServiceScheduler(service.Name, &currentWeatherData, 5, services.NWSAlerts, output)
 				}
+			}
+
+			for range output {
+				fmt.Println(<-output)
 			}
 		} else {
 			fmt.Println("api key is invalid/not detected")
 		}
 	}
-
-	select {}
 }

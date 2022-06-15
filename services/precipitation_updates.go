@@ -1,12 +1,11 @@
 package services
 
 import (
-	"fmt"
 	"pws/api"
 	"strconv"
 )
 
-func PrecipitationUpdates(weatherResponse *api.WeatherResponse, prevData *[]api.Minute) *[]api.Minute {
+func PrecipitationUpdates(weatherResponse *api.WeatherResponse, prevData *[]api.Minute, output chan string) *[]api.Minute {
 
 	oldTimeUntil, willRainOld := minutesUntilRain(prevData)
 	newTimeUntil, willRain := minutesUntilRain(&weatherResponse.Minutely)
@@ -20,7 +19,7 @@ func PrecipitationUpdates(weatherResponse *api.WeatherResponse, prevData *[]api.
 		}
 
 		// TODO: Implement push notifications
-		fmt.Println(message)
+		output <- message
 	}
 
 	return &weatherResponse.Minutely
