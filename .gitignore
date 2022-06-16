@@ -17,4 +17,5 @@ pws
 
 config.json
 *.db
+*.db-journal
 *.p12

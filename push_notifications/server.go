@@ -17,11 +17,7 @@ import (
 	"github.com/sideshow/apns2/payload"
 )
 
-func PushNotificationServer() {
-	db, err := sql.Open("sqlite3", "./database.db")
-	if err != nil {
-		fmt.Println(err)
-	}
+func PushNotificationServer(db *sql.DB) {
 
 	configs := api.GetAllServerConfigurations(db)
 	serviceNames := *api.GetAllServices(db)
