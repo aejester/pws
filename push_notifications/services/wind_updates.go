@@ -2,7 +2,7 @@ package services
 
 import (
 	"math"
-	"pws/api"
+	"pws/push_notifications/api"
 	"strconv"
 )
 

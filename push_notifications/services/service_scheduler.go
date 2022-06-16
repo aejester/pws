@@ -1,14 +1,14 @@
 package services
 
 import (
-	"pws/api"
+	"pws/push_notifications/api"
 	"time"
 )
 
 func ServiceScheduler[T any](name string, data *api.WeatherResponse, refresh int, service func(data *api.WeatherResponse, prev T, out chan string) T, output chan string) {
 	ticker := time.NewTicker(time.Duration(refresh) * time.Minute)
 	quit := make(chan int)
-	msg := "starting thread " + name
+	msg := "!important starting thread " + name
 	output <- msg
 
 	var prev T
@@ -21,7 +21,7 @@ func ServiceScheduler[T any](name string, data *api.WeatherResponse, refresh int
 			case <-ticker.C:
 				prev = service(data, prev, output)
 			case <-quit:
-				msg = "stopping thread " + name
+				msg = "!important stopping thread " + name
 				output <- msg
 				ticker.Stop()
 				return

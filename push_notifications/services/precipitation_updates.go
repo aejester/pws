@@ -1,7 +1,7 @@
 package services
 
 import (
-	"pws/api"
+	"pws/push_notifications/api"
 	"strconv"
 )
 

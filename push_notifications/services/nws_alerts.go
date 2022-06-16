@@ -1,13 +1,10 @@
 package services
 
 import (
-	"fmt"
-	"pws/api"
+	"pws/push_notifications/api"
 )
 
 func NWSAlerts(weatherResponse *api.WeatherResponse, previousData *[]api.Alert, output chan string) *[]api.Alert {
-
-	fmt.Println(weatherResponse.Alerts)
 
 	alertable := api.AlertArrayDifference(previousData, &weatherResponse.Alerts)
 
