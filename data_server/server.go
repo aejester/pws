@@ -6,7 +6,9 @@ import (
 )
 
 func DataServer(db *sql.DB) {
-	http.HandleFunc("/alerts", nil)
+	routes := Routes{DB: db}
+
+	http.HandleFunc("/alerts", routes.AlertsHandler)
 
 	http.ListenAndServe(":8000", nil)
 }

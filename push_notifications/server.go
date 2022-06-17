@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"pws/data_server"
 	"pws/push_notifications/api"
 	"pws/push_notifications/services"
 	"strconv"
@@ -125,6 +126,26 @@ func PushNotificationServer(db *sql.DB) {
 
 					if len(os.Args) >= 3 && (os.Args[2] == "-v" || os.Args[2] == "--verbose") {
 						fmt.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
+					}
+
+					filteredAlerts := data_server.GetAllPushedAlertsMatching(serverConfiguration.APIKey, db)
+
+					canLog := true
+
+					for _, alert := range *filteredAlerts {
+						if alert.Content == message {
+							canLog = false
+						}
+					}
+
+					if canLog {
+						statement, _ := db.Prepare("insert into alerts (date, content, api_key) values (?, ?, ?)")
+						statement.Exec(time.Now().UnixMilli(), message, serverConfiguration.APIKey)
+
+						err = statement.Close()
+						if err != nil {
+							fmt.Println(err)
+						}
 					}
 				} else {
 					fmt.Println(message[11:])
